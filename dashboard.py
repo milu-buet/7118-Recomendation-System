@@ -8,8 +8,10 @@ import pandas
 from helper import Helper
 
 #-------------------------------------------------------------------------------
+ratings_file = 'movielens/ratings.csv'
 df = pandas.read_csv('movielens/users.csv')
 df2 = pandas.read_csv('movielens/movies.csv')
+df3 = pandas.read_csv(ratings_file)
 
 #-------------------------------------------------------------------------------
 
@@ -51,14 +53,13 @@ def movie_selection(div_id, seen=[]):
 	)
 
 import time
-ratings_file = 'movielens/ratings.csv'
+ 
 def addnewRating(userId, movieId, rating):
     timestamp = int(time.time())
-    df3 = pandas.read_csv(ratings_file)
     a = df3[(df3.user_id == userId) & (df3.movie_id == movieId)]
     if len(a) < 1:
-        df3 = df3.append({'user_id' : userId , 'movie_id' : movieId, 'rating': rating, 'timestamp': timestamp} , ignore_index=True)
-        df3.to_csv(ratings_file, index=False)
+        df4 = df3.append({'user_id' : userId , 'movie_id' : movieId, 'rating': rating, 'timestamp': timestamp} , ignore_index=True)
+        df4.to_csv(ratings_file, index=False)
 
 #-------------------------------------------------------------------------------
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -93,6 +94,12 @@ app.layout = html.Div(children=[
             ),
 		html.Div(id='dum', children=''),
         html.Button('Submit', id='button2')
+	]),
+
+	html.Div(children=[
+		html.H2(children='Statistic'),
+		dcc.Graph(id='graph1')
+		
 	]),
 
 	html.Div(children=[
@@ -141,16 +148,40 @@ def seen_movies(user_id):
 	]
 )
 def rate(n_clicks, user_id, movie_id, rating):
-
-	#print('>>',n_clicks)
 	if n_clicks:
 		addnewRating(user_id, movie_id, rating)
 
 	return ""
 #---------------------------------------------------------------------------------
+@app.callback(
+	Output('graph1', 'figure'),
+	[Input('user-drop-r', 'value'),]
+)
+def update_graph(species_name):
+	df4 = df3[df3.user_id < 200]
+	data = df4.groupby(['user_id']).mean()
+	return dict(
+		data = [go.Scatter(
+			x = data.axes[0],
+			y = data.rating,
+			mode = 'lines',
+			name = 'user rating',
+		)],
+		layout = go.Layout(
+			title = 'User Rating',
+		),
+	)
+
+
+
+#---------------------------------------------------------------------------------
 
 if __name__ == '__main__':
 	app.run_server(debug=True)
+
+	#data = df3.groupby(['user_id']).mean()
+	#print(data.__dict__)
+	#print(data.axes[0])
 
 
 

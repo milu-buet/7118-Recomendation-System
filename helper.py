@@ -6,6 +6,7 @@
 from matrix import Matrix
 import numpy
 import random
+import pandas
 ratings_file = 'movielens/ratings.csv'
 movie_file = 'movielens/movies.csv'
 no_users = 6041
@@ -24,14 +25,17 @@ class Helper(object):
 	def getMovieData(self):
 		self.Movies = {}
 		self.features = set()
-		f = open(movie_file)
-		f.readline()
 
-		for line in f:
-			ll = line.strip().split(',')
-			movieId = int(ll[0])
-			genres = ll[-1]
-			movieName = line[len(ll[0])+1:-len(genres)-2]
+		df2 = pandas.read_csv('movielens/movies.csv')
+		#f = open(movie_file)
+		#f.readline()
+
+		for index, row in df2.iterrows():
+		#for line in f:
+			#ll = line.strip().split(',')
+			movieId = int(row['movie_id']) #int(ll[0])
+			genres = row['genres']#ll[-1]
+			movieName = row['title']#line[len(ll[0])+1:-len(genres)-2]
 			movieName = movieName.replace('"','')
 
 			self.Movies[movieId] = (movieName,genres)
@@ -47,11 +51,15 @@ class Helper(object):
 		self.Ratings = {}
 		self.feature_rate = {}
 		self.userseen = {}
+
+		df3 = pandas.read_csv('movielens/ratings.csv')
 		f = open(ratings_file)
 		f.readline()
 
 		for line in f:
-			userId,movieId,rating,timestamp = line.strip().split(',')
+		#for index, row in df3.iterrows():
+
+			userId,movieId,rating,timestamp = line.strip().split(',')#row['user_id'], row['movie_id'], row['rating'], row['timestamp'] #
 
 			userId = int(userId)
 			movieId = int(movieId)
@@ -190,7 +198,7 @@ if __name__== "__main__":
 	
 	#print(list(UI[610]).index(max(UI[610])))
 
-	#print(a.getRecommendedMovie(611) )
+	print(a.getRecommendedMovie(611) )
 
-	print(a.Content_based(611))
+	#print(a.Content_based(611))
 	#print(a.IF.show())
