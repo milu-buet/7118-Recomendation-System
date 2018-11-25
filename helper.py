@@ -1,6 +1,6 @@
 # Md Lutfar Rahman
 # mrahman9@memphis.edu
-# DataMining Assingment 5
+
 
 
 from matrix import Matrix
@@ -148,11 +148,13 @@ class Helper(object):
 		self.UF = self.getUserFeature()
 		UU = numpy.matmul(self.UF.mat, numpy.transpose(self.UF.mat))
 		user_user = list(UU[userId])
-		user_user.pop(userId)
+		user_user[userId] = 0
+		#print(user_user)
 		close_user = user_user.index(max(user_user))
 		recommended_movies = self.getunseenmovies(userId).intersection(set(self.userseen[close_user]))
 
 		a_movie = list(recommended_movies)[0]
+		#print(a_movie)
 
 		return a_movie, self.Movies[a_movie][0]
 
@@ -166,6 +168,12 @@ class Helper(object):
 		self.IF = self.getItemFeature()
 
 		UI = numpy.matmul(self.UF.mat, numpy.transpose(self.IF.mat))
+		#recommended_movies = self.getunseenmovies(userId).intersection(set(self.userseen[close_user]))
+
+
+		for seen in self.userseen[userId]:
+			UI[userId][seen] = 0
+
 
 		a_movie = numpy.argmax(UI[userId])
 
