@@ -12,13 +12,15 @@ ratings_file = 'movielens/ratings.csv'
 df = pandas.read_csv('movielens/users.csv')
 df2 = pandas.read_csv('movielens/movies.csv')
 df3 = pandas.read_csv(ratings_file)
+ratings_users = pandas.merge(df3,df,on='user_id')
 
 #-------------------------------------------------------------------------------
 
 def reco_type(div_id):
 	t1 = {'label': 'User-User (Collaborative-Filtering)', 'value': 1}
 	t2 = {'label': 'User-Item (Content-Based)', 'value': 2}
-	opts = [t1,t2,]
+	t3 = {'label': 'User-User + User-Item (Combined)', 'value': 3}
+	opts = [t1, t2, t3]
 	return dcc.Dropdown(
 		id = div_id,
 		options = opts,
@@ -122,8 +124,11 @@ def rec_movie(n_clicks, algo_value, user_value):
 
 	if algo_value == 1:
 		movie = Helper().Col_filter(int(user_value))
-	else:
+	elif algo_value == 2:
 		movie = Helper().Content_based(int(user_value))
+
+	else:
+		movie = Helper().getIdealReco(int(user_value))
 	
 
 	movie = movie[1]
@@ -135,7 +140,7 @@ def rec_movie(n_clicks, algo_value, user_value):
 	[Input('user-drop-r', 'value')],
 )
 def seen_movies(user_id):
-	seen = Helper().userseen[int(user_id)]     
+	seen = Helper().getUserUnseenMovies(int(user_id))   
 	return [movie_selection('movie-drop-r',seen)]
 #---------------------------------------------------------------------------------
 @app.callback(
@@ -158,17 +163,39 @@ def rate(n_clicks, user_id, movie_id, rating):
 	[Input('user-drop-r', 'value'),]
 )
 def update_graph(species_name):
-	df4 = df3[df3.user_id < 200]
-	data = df4.groupby(['user_id']).mean()
+	df4 = ratings_users[ratings_users.gender == 'M']  #[df3.user_id < 1000]
+	df5 = ratings_users[ratings_users.gender == 'F']
+	
+	data0 = ratings_users.groupby(['user_id']).mean().sort_values(by=['rating'])
+	data1 = df4.groupby(['user_id']).mean().sort_values(by=['rating'])
+	data2 = df5.groupby(['user_id']).mean().sort_values(by=['rating'])
 	return dict(
-		data = [go.Scatter(
-			x = data.axes[0],
-			y = data.rating,
+		data = [
+
+		go.Scatter(
+			x = list(range(1,6041)),
+			y = data0.rating,
 			mode = 'lines',
-			name = 'user rating',
-		)],
+			name = 'Average user ',
+		),
+
+		go.Scatter(
+			x = list(range(1,6041)),
+			y = data1.rating,
+			mode = 'lines',
+			name = 'Male user ',
+		),
+
+		go.Scatter(
+			x = list(range(1,6041)), #list(range(1,6041)),
+			y = data2.rating,
+			mode = 'lines',
+			name = 'Female user ',
+		)
+
+		],
 		layout = go.Layout(
-			title = 'User Rating',
+			title = 'Average user rating distribution ',
 		),
 	)
 

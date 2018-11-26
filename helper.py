@@ -16,9 +16,23 @@ no_movies = 3953
 # Reads data, runs the main algorithm
 class Helper(object):
 	"""docstring for Helper"""
-	def __init__(self):
+	def __init__(self, rating_df = pandas.DataFrame()):
+
+	
+		self.movie_df = pandas.read_csv(movie_file)
+		
+
+		if not rating_df.empty:
+			self.rating_df = rating_df #pandas.read_csv('movielens/ratings.csv')
+		else:
+			self.rating_df = pandas.read_csv(ratings_file)
+		
 		self.getMovieData()
 		self.getRatingData()
+		self.UF = self.getUserFeature()
+		self.IF = self.getItemFeature()
+		self.UU = numpy.matmul(self.UF.mat, numpy.transpose(self.UF.mat))
+		self.UI = numpy.matmul(self.UF.mat, numpy.transpose(self.IF.mat))
 		
 
 
@@ -26,11 +40,11 @@ class Helper(object):
 		self.Movies = {}
 		self.features = set()
 
-		df2 = pandas.read_csv('movielens/movies.csv')
+		
 		#f = open(movie_file)
 		#f.readline()
 
-		for index, row in df2.iterrows():
+		for index, row in self.movie_df.iterrows():
 		#for line in f:
 			#ll = line.strip().split(',')
 			movieId = int(row['movie_id']) #int(ll[0])
@@ -47,13 +61,40 @@ class Helper(object):
 		self.features = sorted(list(self.features))
 
 
+	def getMovieGenres(self, movieId):
+		sr = self.movie_df[self.movie_df.movie_id == movieId]
+		sr = list(sr.genres)[0].split('|')
+		return sr
+
+	def getMovieTitle(self, movieId):
+		sr = self.movie_df[self.movie_df.movie_id == movieId]
+		sr = list(sr.title)[0]
+		return sr
+
+
+	def getRating(self, userId, movieId):
+		pass
+
+
+	def getUserSeenMovies(self, userId):
+
+		sr = self.rating_df[self.rating_df.user_id == userId].movie_id
+		#print(set(sr))
+		return set(sr)
+
+	def getUserUnseenMovies(self, userId):
+		
+		sr = set(self.movie_df.movie_id)
+		return sr - self.getUserSeenMovies(userId)
+
+
 	def getRatingData(self):
 		self.Ratings = {}
 		self.feature_rate = {}
-		self.userseen = {}
 
-		df3 = pandas.read_csv('movielens/ratings.csv')
-		f = open(ratings_file)
+		self.rating_df.to_csv('movielens/dum.csv', index=False)
+
+		f = open('movielens/dum.csv')
 		f.readline()
 
 		for line in f:
@@ -82,29 +123,11 @@ class Helper(object):
 					a = round(b/c,2)
 					self.feature_rate[userId][genre] = (a,b,c)
 
-				if userId not in self.userseen:
-					self.userseen[userId] = []
-
-				self.userseen[userId].append(movieId)
-
-
-	def getunseenmovies(self, userId):
-
-		if userId in self.userseen:
-			seen = set(self.userseen[userId])
-		else:
-			seen = set()
-			
-		unseen = set(self.Movies.keys()) - seen
-
-		return unseen
-
 
 	def getRandomUnseenMovie(self, userId):
-		items = list(self.getunseenmovies(userId))
+		items = list(self.getUserUnseenMovies(userId))
 		a_movie =  random.choice(items)
-		#print(a_movie)
-		return a_movie, self.Movies[a_movie][0] 
+		return a_movie, self.getMovieTitle(a_movie) 
 			
 		
 
@@ -152,40 +175,83 @@ class Helper(object):
 
 
 
-	def getRecommendedMovie(self, userId):
-		self.UF = self.getUserFeature()
-		UU = numpy.matmul(self.UF.mat, numpy.transpose(self.UF.mat))
-		user_user = list(UU[userId])
+	def getRecommendedMovieCol(self, userId, M=10):
+		#self.UF = self.getUserFeature()
+		#UU = numpy.matmul(self.UF.mat, numpy.transpose(self.UF.mat))
+		user_user = list(self.UU[userId])
 		user_user[userId] = 0
 		#print(user_user)
 		close_user = user_user.index(max(user_user))
-		recommended_movies = self.getunseenmovies(userId).intersection(set(self.userseen[close_user]))
+		recommended_movies = self.getUserUnseenMovies(userId).intersection(self.getUserSeenMovies(close_user))
 
-		a_movie = list(recommended_movies)[0]
+		return list(recommended_movies)[0:M]
 		#print(a_movie)
 
-		return a_movie, self.Movies[a_movie][0]
+		#return a_movie, self.Movies[a_movie][0]
 
 
 
 	def Col_filter(self, userId):
-		return self.getRecommendedMovie(userId)
+		a_movie = self.getRecommendedMovieCol(userId)[0]
+		return a_movie, self.Movies[a_movie][0]
 
-	def Content_based(self, userId):
-		self.UF = self.getUserFeature()
-		self.IF = self.getItemFeature()
+	def getRecommendedMovieCont(self, userId, M=10):
+		#self.UF = self.getUserFeature()
+		#self.IF = self.getItemFeature()
 
-		UI = numpy.matmul(self.UF.mat, numpy.transpose(self.IF.mat))
-		#recommended_movies = self.getunseenmovies(userId).intersection(set(self.userseen[close_user]))
-
-
-		for seen in self.userseen[userId]:
+		#UI = numpy.matmul(self.UF.mat, numpy.transpose(self.IF.mat))
+		UI = self.UI.copy()
+		for seen in self.getUserSeenMovies(userId):
 			UI[userId][seen] = 0
 
+		recs = []
 
-		a_movie = numpy.argmax(UI[userId])
+		for i in range(M):
+			a_movie = numpy.argmax(UI[userId])
+			UI[userId][a_movie] = 0
+			recs.append(a_movie)
+
+		return recs
+	
+
+	def Content_based(self, userId):
+		# self.UF = self.getUserFeature()
+		# self.IF = self.getItemFeature()
+
+		# UI = numpy.matmul(self.UF.mat, numpy.transpose(self.IF.mat))
+		# #recommended_movies = self.getunseenmovies(userId).intersection(set(self.userseen[close_user]))
+
+
+		# for seen in self.getUserSeenMovies(userId):
+		# 	UI[userId][seen] = 0
+
+
+		a_movie = self.getRecommendedMovieCont(userId)[0]
 
 		return a_movie, self.Movies[a_movie][0]
+
+
+
+	def getIdealRecos(self,userId, M = 30):
+
+		#M = 20
+		A = set(self.getRecommendedMovieCol(userId, M))
+		B = set(self.getRecommendedMovieCont(userId, M))
+
+		return A.intersection(B)
+
+
+	def getIdealReco(self,userId):
+
+		recos = list(self.getIdealRecos(userId))
+
+		if recos == []:
+			return None, None
+
+		a_movie = recos[0]
+		return a_movie, self.Movies[a_movie][0]
+
+
 
 
 
@@ -198,7 +264,16 @@ if __name__== "__main__":
 	
 	#print(list(UI[610]).index(max(UI[610])))
 
-	print(a.getRecommendedMovie(611) )
+	#print(a.getRecommendedMovieCol(611) )
+	#print(a.getRecommendedMovieCont(611) )
+
+	print(a.getIdealRecos(700,30))
 
 	#print(a.Content_based(611))
 	#print(a.IF.show())
+
+	#print(a.getRandomUnseenMovie(611))
+
+	#print(a.getMovieTitle(1))
+
+	#print(a.getUserUnseenMovies(611))
