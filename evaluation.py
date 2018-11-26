@@ -21,28 +21,28 @@ class Evaluation(object):
 
 
 	
-	def singleUserTest(self, userId):
-		df = self.rating_df[self.rating_df.user_id == userId]
-		df = df[df.rating == df.rating.max()].movie_id
+	# def singleUserTest(self, userId):
+	# 	df = self.rating_df[self.rating_df.user_id == userId]
+	# 	df = df[df.rating == df.rating.max()].movie_id
 
-		#print(df)
+	# 	#print(df)
 
-		for a_movie in list(df):
-			#a_movie =  random.choice(list(df))
+	# 	for a_movie in list(df):
+	# 		#a_movie =  random.choice(list(df))
 
-			new_df = self.rating_df[self.rating_df.movie_id != a_movie]
-			h = Helper(new_df) 
+	# 		new_df = self.rating_df[self.rating_df.movie_id != a_movie]
+	# 		h = Helper(new_df) 
 
-			M = 40
-			A = h.getRecommendedMovieCol(userId, M)
-			B = list(h.getRecommendedMovieCont(userId, M))
-			C = list(h.getIdealRecos(userId, M))
+	# 		M = 40
+	# 		A = h.getRecommendedMovieCol(userId, M)
+	# 		B = list(h.getRecommendedMovieCont(userId, M))
+	# 		C = list(h.getIdealRecos(userId, M))
 
-			#print(a_movie,A,B,C)
-			results = a_movie in A, a_movie in B, a_movie in C
-			print(results)
+	# 		#print(a_movie,A,B,C)
+	# 		results = a_movie in A, a_movie in B, a_movie in C
+	# 		print(results)
 
-		return results
+	# 	return results
 
 	def singleUserTest2(self, h, userId):
 
@@ -88,7 +88,7 @@ class Evaluation(object):
 		B = float(B)/no_users
 		C = float(C)/no_users
 
-		return A,B,C
+		return A,B,C   # precision for three algorithm
 
 
 

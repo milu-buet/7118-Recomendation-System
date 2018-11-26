@@ -98,16 +98,21 @@ app.layout = html.Div(children=[
         html.Button('Submit', id='button2')
 	]),
 
+	
+
+	html.Div(children=[
+		html.H2(children='Evaluation'),
+		dcc.Graph(id='graph2'),
+		#dcc.Graph(id='graph3'),
+
+		
+	], style={'width':'30%', 'display':'inline-block'}),
+
 	html.Div(children=[
 		html.H2(children='Statistic'),
 		dcc.Graph(id='graph1')
 		
 	]),
-
-	html.Div(children=[
-		html.H2(children='Evaluation'),
-		
-	])
 	
 ])
 
@@ -140,7 +145,8 @@ def rec_movie(n_clicks, algo_value, user_value):
 	[Input('user-drop-r', 'value')],
 )
 def seen_movies(user_id):
-	seen = Helper().getUserUnseenMovies(int(user_id))   
+	seen = list(Helper().getUserSeenMovies(int(user_id)))
+	#print(seen)
 	return [movie_selection('movie-drop-r',seen)]
 #---------------------------------------------------------------------------------
 @app.callback(
@@ -162,7 +168,7 @@ def rate(n_clicks, user_id, movie_id, rating):
 	Output('graph1', 'figure'),
 	[Input('user-drop-r', 'value'),]
 )
-def update_graph(species_name):
+def update_graph1(value):
 	df4 = ratings_users[ratings_users.gender == 'M']  #[df3.user_id < 1000]
 	df5 = ratings_users[ratings_users.gender == 'F']
 	
@@ -203,6 +209,50 @@ def update_graph(species_name):
 
 #---------------------------------------------------------------------------------
 
+@app.callback(
+	Output('graph2', 'figure'),
+	[Input('user-drop-r', 'value'),]
+)
+def update_graph2(value):
+
+	return dict(
+		data = [
+
+		go.Bar(
+			x = ['user-user', 'user-item', 'combined'],
+			y = [0.3964575401423605, 0.48054957788445624, 0.4810461844065552],
+			#mode = 'lines',
+			#name = 'Average user ',
+		)],
+		layout = go.Layout(
+			title = 'Recommendation Precision',
+		),
+	)
+
+
+#---------------------------------------------------------------------------------
+# @app.callback(
+# 	Output('graph3', 'figure'),
+# 	[Input('user-drop-r', 'value'),]
+# )
+# def update_graph3(value):
+
+# 	return dict(
+# 		data = [
+
+# 		go.Bar(
+# 			x = ['user-user', 'user-item', 'combined'],
+# 			y = [0.3964575401423605, 0.48054957788445624, 0.4810461844065552],
+# 			#mode = 'lines',
+# 			#name = 'Average user ',
+# 		)],
+# 		layout = go.Layout(
+# 			title = 'Recommendation Recall',
+# 		),
+# 	)
+
+
+#---------------------------------------------------------------------------------
 if __name__ == '__main__':
 	app.run_server(debug=True)
 
