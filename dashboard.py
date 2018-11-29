@@ -19,7 +19,7 @@ ratings_users = pandas.merge(df3,df,on='user_id')
 def reco_type(div_id):
 	t1 = {'label': 'User-User (Collaborative-Filtering)', 'value': 1}
 	t2 = {'label': 'User-Item (Content-Based)', 'value': 2}
-	t3 = {'label': 'User-User + User-Item (Combined)', 'value': 3}
+	t3 = {'label': 'User-User + User-Item (Hybrid)', 'value': 3}
 	opts = [t1, t2, t3]
 	return dcc.Dropdown(
 		id = div_id,
@@ -219,7 +219,7 @@ def update_graph2(value):
 		data = [
 
 		go.Bar(
-			x = ['user-user', 'user-item', 'combined'],
+			x = ['user-user', 'user-item', 'hybrid'],
 			y = [0.3964575401423605, 0.48054957788445624, 0.4810461844065552],
 			#mode = 'lines',
 			#name = 'Average user ',

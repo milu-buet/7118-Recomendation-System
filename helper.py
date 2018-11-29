@@ -9,7 +9,7 @@ import random
 import pandas
 ratings_file = 'movielens/ratings.csv'
 movie_file = 'movielens/movies.csv'
-no_users = 6041
+no_users = 6042
 no_movies = 3953
 
 
