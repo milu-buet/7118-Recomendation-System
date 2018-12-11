@@ -1,7 +1,3 @@
-# Md Lutfar Rahman
-# mrahman9@memphis.edu
-
-
 
 from matrix import Matrix
 import numpy
@@ -194,6 +190,11 @@ class Helper(object):
 	def Col_filter(self, userId):
 		a_movie = self.getRecommendedMovieCol(userId)[0]
 		return a_movie, self.Movies[a_movie][0]
+
+	def Col_filter2(self, userId):
+		movies = self.getRecommendedMovieCol(userId)
+		movie_names = [self.Movies[i][0] for i in movies]
+		return movie_names #a_movie, self.Movies[a_movie][0]
 
 	def getRecommendedMovieCont(self, userId, M=10):
 		#self.UF = self.getUserFeature()

@@ -1,7 +1,3 @@
-# Md Lutfar Rahman
-# mrahman9@memphis.edu
-
-
 
 from matrix import Matrix
 import numpy

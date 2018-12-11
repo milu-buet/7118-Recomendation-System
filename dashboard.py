@@ -27,6 +27,8 @@ def reco_type(div_id):
 		value = opts[0]['value'],
 	)
 
+
+
 def user_selection(div_id):
 	opts = []
 	for index, row in df.iterrows():
@@ -100,19 +102,19 @@ app.layout = html.Div(children=[
 
 	
 
-	html.Div(children=[
-		html.H2(children='Evaluation'),
-		dcc.Graph(id='graph2'),
-		#dcc.Graph(id='graph3'),
+	# html.Div(children=[
+	# 	html.H2(children='Evaluation'),
+	# 	dcc.Graph(id='graph2'),
+	# 	#dcc.Graph(id='graph3'),
 
 		
-	], style={'width':'30%', 'display':'inline-block'}),
+	# ], style={'width':'30%', 'display':'inline-block'}),
 
-	html.Div(children=[
-		html.H2(children='Statistic'),
-		dcc.Graph(id='graph1')
+	# html.Div(children=[
+	# 	html.H2(children='Statistic'),
+	# 	dcc.Graph(id='graph1')
 		
-	]),
+	# ]),
 	
 ])
 
@@ -128,7 +130,7 @@ app.layout = html.Div(children=[
 def rec_movie(n_clicks, algo_value, user_value):
 
 	if algo_value == 1:
-		movie = Helper().Col_filter(int(user_value))
+		movie = Helper().Col_filter2(int(user_value))
 	elif algo_value == 2:
 		movie = Helper().Content_based(int(user_value))
 
@@ -136,8 +138,11 @@ def rec_movie(n_clicks, algo_value, user_value):
 		movie = Helper().getIdealReco(int(user_value))
 	
 
-	movie = movie[1]
-	return 'Recommended Movie:  ' + movie
+	#movie = movie[1]
+	#html.Li(movie)
+	#return 'Recommended Movies:  ' + str(movie)
+	movie = ['a','b']
+	return html.Li(['a','b'])
 
 #-------------------------------------------------------------------------------
 @app.callback(
@@ -164,70 +169,70 @@ def rate(n_clicks, user_id, movie_id, rating):
 
 	return ""
 #---------------------------------------------------------------------------------
-@app.callback(
-	Output('graph1', 'figure'),
-	[Input('user-drop-r', 'value'),]
-)
-def update_graph1(value):
-	df4 = ratings_users[ratings_users.gender == 'M']  #[df3.user_id < 1000]
-	df5 = ratings_users[ratings_users.gender == 'F']
+# @app.callback(
+# 	Output('graph1', 'figure'),
+# 	[Input('user-drop-r', 'value'),]
+# )
+# def update_graph1(value):
+# 	df4 = ratings_users[ratings_users.gender == 'M']  #[df3.user_id < 1000]
+# 	df5 = ratings_users[ratings_users.gender == 'F']
 	
-	data0 = ratings_users.groupby(['user_id']).mean().sort_values(by=['rating'])
-	data1 = df4.groupby(['user_id']).mean().sort_values(by=['rating'])
-	data2 = df5.groupby(['user_id']).mean().sort_values(by=['rating'])
-	return dict(
-		data = [
+# 	data0 = ratings_users.groupby(['user_id']).mean().sort_values(by=['rating'])
+# 	data1 = df4.groupby(['user_id']).mean().sort_values(by=['rating'])
+# 	data2 = df5.groupby(['user_id']).mean().sort_values(by=['rating'])
+# 	return dict(
+# 		data = [
 
-		go.Scatter(
-			x = list(range(1,6041)),
-			y = data0.rating,
-			mode = 'lines',
-			name = 'Average user ',
-		),
+# 		go.Scatter(
+# 			x = list(range(1,6041)),
+# 			y = data0.rating,
+# 			mode = 'lines',
+# 			name = 'Average user ',
+# 		),
 
-		go.Scatter(
-			x = list(range(1,6041)),
-			y = data1.rating,
-			mode = 'lines',
-			name = 'Male user ',
-		),
+# 		go.Scatter(
+# 			x = list(range(1,6041)),
+# 			y = data1.rating,
+# 			mode = 'lines',
+# 			name = 'Male user ',
+# 		),
 
-		go.Scatter(
-			x = list(range(1,6041)), #list(range(1,6041)),
-			y = data2.rating,
-			mode = 'lines',
-			name = 'Female user ',
-		)
+# 		go.Scatter(
+# 			x = list(range(1,6041)), #list(range(1,6041)),
+# 			y = data2.rating,
+# 			mode = 'lines',
+# 			name = 'Female user ',
+# 		)
 
-		],
-		layout = go.Layout(
-			title = 'Average user rating distribution ',
-		),
-	)
+# 		],
+# 		layout = go.Layout(
+# 			title = 'Average user rating distribution ',
+# 		),
+# 	)
 
 
 
 #---------------------------------------------------------------------------------
 
-@app.callback(
-	Output('graph2', 'figure'),
-	[Input('user-drop-r', 'value'),]
-)
-def update_graph2(value):
+# @app.callback(
+# 	Output('graph2', 'figure'),
+# 	[Input('user-drop-r', 'value'),]
+# )
+# def update_graph2(value):
 
-	return dict(
-		data = [
+# 	return dict(
+# 		data = [
 
-		go.Bar(
-			x = ['user-user', 'user-item', 'hybrid'],
-			y = [0.3964575401423605, 0.48054957788445624, 0.4810461844065552],
-			#mode = 'lines',
-			#name = 'Average user ',
-		)],
-		layout = go.Layout(
-			title = 'Recommendation Precision',
-		),
-	)
+# 		go.Bar(
+# 			x = ['user-user', 'user-item', 'hybrid'],
+# 			y = [0.3964575401423605, 0.48054957788445624, 0.4810461844065552],
+# 			#mode = 'lines',
+# 			#name = 'Average user ',
+# 		)],
+# 		layout = go.Layout(
+# 			title = 'Recommendation Precision',
+# 		),
+# 	)
 
 
 #---------------------------------------------------------------------------------
