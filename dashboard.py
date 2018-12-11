@@ -13,6 +13,7 @@ df = pandas.read_csv('movielens/users.csv')
 df2 = pandas.read_csv('movielens/movies.csv')
 df3 = pandas.read_csv(ratings_file)
 ratings_users = pandas.merge(df3,df,on='user_id')
+ratings_movies = pandas.merge(df3,df2,on='movie_id')
 
 #-------------------------------------------------------------------------------
 
@@ -26,6 +27,11 @@ def reco_type(div_id):
 		options = opts,
 		value = opts[0]['value'],
 	)
+
+
+def getLikedMovies(user_id):
+	dr = ratings_movies[ratings_movies.user_id == user_id].sort_values(by=['rating']).tail().title
+	return list(dr)
 
 
 
@@ -78,7 +84,8 @@ app.layout = html.Div(children=[
 		html.Div([ user_selection('user-drop') ], style={'width':'45%', 'display':'inline-block'}),
 		html.Div(children=''),
 		html.Button('Recommend', id='button1'),
-		html.H5(id='movie', children='Recommended Movie:'),
+		html.H5(id='liked_movie', children=''),
+		html.H5(id='movie', children=''),
 	]),
 
 	html.Div(children="\n\n"),
@@ -130,19 +137,19 @@ app.layout = html.Div(children=[
 def rec_movie(n_clicks, algo_value, user_value):
 
 	if algo_value == 1:
-		movie = Helper().Col_filter2(int(user_value))
+		movies = Helper().Col_filter2(int(user_value))
 	elif algo_value == 2:
-		movie = Helper().Content_based(int(user_value))
+		movies = Helper().Content_based(int(user_value))
 
 	else:
-		movie = Helper().getIdealReco(int(user_value))
+		movies = Helper().getIdealReco(int(user_value))
 	
 
 	#movie = movie[1]
 	#html.Li(movie)
-	#return 'Recommended Movies:  ' + str(movie)
-	movie = ['a','b']
-	return html.Li(['a','b'])
+	return 'Recommended Movies:  ' + ',  '.join(movies[0:5])
+	#movie = ['a','b']
+	#return html.Li()
 
 #-------------------------------------------------------------------------------
 @app.callback(
@@ -153,6 +160,17 @@ def seen_movies(user_id):
 	seen = list(Helper().getUserSeenMovies(int(user_id)))
 	#print(seen)
 	return [movie_selection('movie-drop-r',seen)]
+#---------------------------------------------------------------------------------
+
+@app.callback(
+	Output('liked_movie', 'children'),
+	[Input('user-drop', 'value')],
+)
+def make_liked_movies(user_id):
+	liked_movies = getLikedMovies(user_id)
+	#print(seen)
+	return 'Liked Movies:  ' + ',  '.join(liked_movies[0:5]) 
+
 #---------------------------------------------------------------------------------
 @app.callback(
 	Output('dum', 'children'),
@@ -264,6 +282,8 @@ if __name__ == '__main__':
 	#data = df3.groupby(['user_id']).mean()
 	#print(data.__dict__)
 	#print(data.axes[0])
+
+	#print(getLikedMovies(611))
 
 
 

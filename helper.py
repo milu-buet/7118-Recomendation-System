@@ -98,6 +98,7 @@ class Helper(object):
 
 			userId,movieId,rating,timestamp = line.strip().split(',')#row['user_id'], row['movie_id'], row['rating'], row['timestamp'] #
 
+			#print(userId)
 			userId = int(userId)
 			movieId = int(movieId)
 			
@@ -231,6 +232,14 @@ class Helper(object):
 
 		return a_movie, self.Movies[a_movie][0]
 
+	def Content_based2(self, userId):
+
+		#a_movie = self.getRecommendedMovieCont(userId)[0]
+
+		movies = self.getRecommendedMovieCont(userId)
+		movie_names = [self.Movies[i][0] for i in movies]
+		return movie_names
+
 
 
 	def getIdealRecos(self,userId, M = 30):
@@ -252,7 +261,19 @@ class Helper(object):
 		a_movie = recos[0]
 		return a_movie, self.Movies[a_movie][0]
 
+	def getIdealReco2(self,userId):
 
+		recos = list(self.getIdealRecos(userId))
+
+		if recos == []:
+			return None, None
+
+		#a_movie = recos[0]
+		#return a_movie, self.Movies[a_movie][0]
+
+		movies = recos
+		movie_names = [self.Movies[i][0] for i in movies]
+		return movie_names
 
 
 
